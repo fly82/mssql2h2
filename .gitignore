@@ -1,6 +1,6 @@
-*.class
+/out
+/lib
+/*.iml
+/*.idea
+/.*.db
 
-# Package Files #
-*.jar
-*.war
-*.ear
