@@ -10,6 +10,7 @@
   </configurations>
 
   <dependencies defaultconf="default->default">
-
+      <dependency org="com.h2database" name="h2" rev="1.3+"/>
+      <dependency org="net.sourceforge.jtds" name="jtds" rev="1.3.1"/>
   </dependencies>
 </ivy-module>
