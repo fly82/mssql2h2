@@ -9,29 +9,14 @@
         <createTable tableName="Appeals">
             <column name="id" type="integer"><constraints primaryKey="true"/></column>
             <column name="name" type="varchar(200) not null"/>
-            <column name="description" type="text"/>
-            <column name="lat" type="float not null"/>
-            <column name="lon" type="float not null"/>
-            <column name="createdAt" type="timestamp" defaultValueComputed="systimestamp"/>
+            <column name="date" type="text"/>
+            <column name="address" type="text"/>
+            <column name="number" type="text"/>
         </createTable>
     </changeSet>
 
     <changeSet id="1-h2" author="Mukha" dbms="h2">
         <modifyDataType tableName="Appeals" columnName="id" newDataType="integer auto_increment"/>
-    </changeSet>
-
-    <changeSet id="2" author="Mukha">
-        <renameColumn tableName="Appeals" oldColumnName="lat" newColumnName="latitude"/>
-        <renameColumn tableName="Appeals" oldColumnName="lon" newColumnName="longitude"/>
-    </changeSet>
-
-    <changeSet id="3" author="Mukha">
-        <insert tableName="Appeals">
-            <column name="id" value="0"/>
-            <column name="name" value="Vadim Mukha"/>
-            <column name="latitude" value="59.437755"/>
-            <column name="longitude" value="24.74209"/>
-        </insert>
     </changeSet>
 
 </databaseChangeLog>
