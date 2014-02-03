@@ -1,5 +1,6 @@
 package models;
 
+import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,11 +12,11 @@ public class ConnectDB {
     public ConnectDB() {
     }
 
-    public Connection getConnectionH2() throws ClassNotFoundException {
+    public java.sql.Statement getStatementH2() throws ClassNotFoundException {
         try {
             Class.forName("org.h2.Driver");
-
-            return getConnection("jdbc:h2:../.appeals.h2.db", "sa", "sa");
+            System.out.println("Connected H2 database successfully...");
+            return getConnection("jdbc:h2:../.appeals.h2.db", "sa", "sa").createStatement();
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
@@ -23,12 +24,16 @@ public class ConnectDB {
     }
 
     public Connection getConnectionMSSQL() throws ClassNotFoundException {
-        final String SERVER = "sqlserver://192.168.200.3:1433";
+        final String JDBC_DRIVER = "net.sourceforge.jtds.jdbc.Driver";
+        final String DB_URL = "jdbc:jtds:sqlserver://192.168.200.3:1433";
+
+        final String USER = "sa";
         final String PASS = "PrDFk267";
 
         try {
-            Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            return getConnection("jdbc:jtds:" + SERVER + ";DatabaseName=Zvertan", "sa", PASS);
+            Class.forName(JDBC_DRIVER);
+            System.out.println("Connected MSSQL database successfully...");
+            return getConnection(DB_URL + ";DatabaseName=Zvertan", USER, PASS);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
