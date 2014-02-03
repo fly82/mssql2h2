@@ -8,6 +8,9 @@ import static java.sql.DriverManager.getConnection;
 
 public class ConnectDB {
 
+    public ConnectDB() {
+    }
+
     public Connection getConnectionH2() throws ClassNotFoundException {
         try {
             Class.forName("org.h2.Driver");
