@@ -16,14 +16,14 @@ public class ConnectDB {
         try {
             Class.forName("org.h2.Driver");
             System.out.println("Connected H2 database successfully...");
-            return getConnection("jdbc:h2:../.appeals", "sa", "sa").createStatement();
+            return getConnection("jdbc:h2:.appeals", "sa", "sa").createStatement();
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Statement getConnectionMSSQL() throws ClassNotFoundException {
+    public Statement getStatementMSSQL() throws ClassNotFoundException {
         final String JDBC_DRIVER = "net.sourceforge.jtds.jdbc.Driver";
         final String DB_URL = "jdbc:jtds:sqlserver://192.168.200.3:1433";
 

@@ -4,9 +4,6 @@
 
   <configurations>
     <conf name="default" description="for runtime"/>
-    <conf name="compile"/>
-    <conf name="test"/>
-    <conf name="devel"/>
   </configurations>
 
   <dependencies defaultconf="default->default">

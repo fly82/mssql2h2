@@ -8,7 +8,7 @@ import java.sql.Statement;
 public class Main {
     public static void main(String[]args) throws ClassNotFoundException {
         Statement H2 = new ConnectDB().getStatementH2();
-        Statement MSSQL = new ConnectDB().getConnectionMSSQL();
+        Statement MSSQL = new ConnectDB().getStatementMSSQL();
         final String allYear2014 = "113214";
         final String SQL = "SELECT * FROM RC_4 WHERE Cdoc > "+allYear2014+" AND Fnum_51 = 'Контрольний' AND Fnum_3 IS NOT NULL";
 
@@ -17,10 +17,10 @@ public class Main {
             ResultSet rsMSSQL = MSSQL.executeQuery(SQL);
             while (rsMSSQL.next()) {
                 //System.out.println(rsMSSQL.getString("Cdoc") + " " + rsMSSQL.getString("Fnum_3"));
-                String sql = "INSERT INTO appeals VALUES ('fgjkd')";
-                //+rsMSSQL.getString("Fnum_3")+","+rsMSSQL.getString("Fnum_6")+","+
-                 //       rsMSSQL.getString("Fnum_118")+")";
-                System.out.print(sql);
+                String sql = "INSERT INTO appeals (id, name,date,address,number) " +
+                        "VALUES ("+rsMSSQL.getString("Cdoc")+",'"+rsMSSQL.getString("Fnum_1").replaceAll("'","")+"','"+
+                        rsMSSQL.getString("Fnum_3")+"','"+rsMSSQL.getString("Fnum_6")+"','"+rsMSSQL.getString("Fnum_118")+"')";
+                System.out.println(sql);
                 H2.executeUpdate(sql);
 
 
