@@ -1,6 +1,5 @@
 import models.ConnectDB;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,18 +15,12 @@ public class Main {
 
             ResultSet rsMSSQL = MSSQL.executeQuery(SQL);
             while (rsMSSQL.next()) {
-                //System.out.println(rsMSSQL.getString("Cdoc") + " " + rsMSSQL.getString("Fnum_3"));
                 String sql = "INSERT INTO appeals (id, name,date,address,number) " +
                         "VALUES ("+rsMSSQL.getString("Cdoc")+",'"+rsMSSQL.getString("Fnum_1").replaceAll("'","")+"','"+
                         rsMSSQL.getString("Fnum_3")+"','"+rsMSSQL.getString("Fnum_6")+"','"+rsMSSQL.getString("Fnum_118")+"')";
                 System.out.println(sql);
                 H2.executeUpdate(sql);
-
-
-                //Long.parseLong(rsMSSQL.getString("Cdoc")), rsMSSQL.getString("Fnum_1"),
-                //rsMSSQL.getString("Fnum_3"), rsMSSQL.getString("Fnum_6"), rsMSSQL.getString("Fnum_118"),
-
-                    }
+                }
         }
         catch (Exception e) {
             throw new RuntimeException(e);
