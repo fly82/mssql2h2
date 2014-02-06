@@ -21,16 +21,4 @@
             <column name="lon" type="float"></column>
         </addColumn>
     </changeSet>
-
-    <changeSet id="delColoumn" author="Mukha" dbms="h2">
-        <dropColumn tableName="appeals" columnName="lat"/>
-        <dropColumn tableName="appeals" columnName="lon"/>
-    </changeSet>
-
-    <changeSet id="addColumn1" author="Mukha" dbms="h2">
-        <addColumn tableName="Appeals">
-            <column name="lat" type="float"></column>
-            <column name="lon" type="float"></column>
-        </addColumn>
-    </changeSet>
 </databaseChangeLog>

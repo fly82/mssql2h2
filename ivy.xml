@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ivy-module version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-  <info organisation="mukha" module="mssql2H2"/>
+  <info organisation="mukha" module="mssql2h2"/>
 
   <configurations>
     <conf name="default" description="for runtime"/>
