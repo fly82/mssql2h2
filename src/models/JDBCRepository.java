@@ -17,29 +17,30 @@ import static com.google.common.collect.Iterables.transform;
 
 public class JDBCRepository {
     @Autowired DataSource dataSource;
-    public void convert() throws ClassNotFoundException {
-        Connection conn = null;
+    public void convert() throws ClassNotFoundException, SQLException {
+        Connection connH2 = null;
         Statement stmtMSSQL = new ConnectDB().getStatementMSSQL();
-
-        final String ALLYEAR2014 = "113214";
-        final String MSSQL = "SELECT * FROM RC_4 WHERE Cdoc > "+ALLYEAR2014+" AND Fnum_51 = 'Контрольний' AND Fnum_3 IS NOT NULL";
         final String H2SQL = "INSERT INTO appeals (id, name, date, address, number,lat,lon) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try {
             Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection("jdbc:h2:~/IdeaProjects/mssql2h2/.appeals","sa","sa");
-            if (conn == null) System.out.println("null");
-            PreparedStatement stmt = conn.prepareStatement(H2SQL);
-            ResultSet rsMSSQL = stmtMSSQL.executeQuery(MSSQL);
-            while (rsMSSQL.next()) {
-                stmt.setString(1, rsMSSQL.getString("Cdoc"));
-                stmt.setString(2, rsMSSQL.getString("Fnum_1").replaceAll("'", ""));
-                stmt.setString(3, rsMSSQL.getString("Fnum_3"));
-                stmt.setString(4, rsMSSQL.getString("Fnum_6"));
-                stmt.setString(5, rsMSSQL.getString("Fnum_118"));
+            connH2 = DriverManager.getConnection("jdbc:h2:~/IdeaProjects/mssql2h2/.appeals","sa","sa");
 
-                stmt.setFloat(6, location(rsMSSQL.getString("Fnum_6")).latitude);
-                stmt.setFloat(7, location(rsMSSQL.getString("Fnum_6")).longitude);
-                stmt.execute();
+            String sqlMSSQL = "SELECT * FROM RC_4 WHERE Cdoc > "+lastRecord(connH2)+" AND Fnum_51 = 'Контрольний' AND Fnum_3 IS NOT NULL";
+
+            PreparedStatement stmtH2 = connH2.prepareStatement(H2SQL);
+            ResultSet rsMSSQL = stmtMSSQL.executeQuery(sqlMSSQL);
+            Location tempLocation = new Location(0,0);
+            while (rsMSSQL.next()) {
+                tempLocation = location(rsMSSQL.getString("Fnum_6"));
+                stmtH2.setString(1, rsMSSQL.getString("Cdoc"));
+                stmtH2.setString(2, rsMSSQL.getString("Fnum_1").replaceAll("'", ""));
+                stmtH2.setString(3, rsMSSQL.getString("Fnum_3"));
+                stmtH2.setString(4, rsMSSQL.getString("Fnum_6"));
+                stmtH2.setString(5, rsMSSQL.getString("Fnum_118"));
+                stmtH2.setFloat(6, tempLocation.latitude);
+                stmtH2.setFloat(7, tempLocation.longitude);
+                stmtH2.execute();
             }
         }
         catch (Exception e) {
@@ -47,6 +48,7 @@ public class JDBCRepository {
         }
         finally {
             closeSilently(stmtMSSQL);
+            if (connH2 != null) connH2.close();
         }
     }
     private static void closeSilently(Statement stmt) {
@@ -57,7 +59,14 @@ public class JDBCRepository {
         }
     }
 
-    private static String encodeParams(final Map<String, String> params) {
+    private String lastRecord(Connection conn) throws SQLException {
+        final String BEGIN2014YEAR = "113214";
+        ResultSet rslastRecord = conn.createStatement().executeQuery("SELECT MAX(id) FROM appeals");
+        rslastRecord.next();
+        return rslastRecord.getString("MAX(id)") == null ? rslastRecord.getString("MAX(id)") : BEGIN2014YEAR;
+    }
+
+    private String encodeParams(final Map<String, String> params) {
         final String paramsUrl = on('&').join(// получаем значение вида key1=value1&key2=value2...
                 transform(params.entrySet(), new Function<Map.Entry<String, String>, String>() {
 
@@ -77,7 +86,7 @@ public class JDBCRepository {
         return paramsUrl;
     }
 
-    public static Location location(String address) throws IOException {
+    private Location location(String address) throws IOException {
         final String baseUrl = "http://maps.googleapis.com/maps/api/geocode/json";
         final Map<String, String> params = Maps.newHashMap();
         params.put("sensor", "false");
