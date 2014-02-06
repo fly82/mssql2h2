@@ -23,9 +23,10 @@ public class JDBCRepository {
 
         final String ALLYEAR2014 = "113214";
         final String MSSQL = "SELECT * FROM RC_4 WHERE Cdoc > "+ALLYEAR2014+" AND Fnum_51 = 'Контрольний' AND Fnum_3 IS NOT NULL";
-        final String H2SQL = "INSERT INTO appeals (id, name, date, address, number) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        final String H2SQL = "INSERT INTO appeals (id, name, date, address, number,lat,lon) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
-            conn = dataSource.getConnection();
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.getConnection("jdbc:h2:~/IdeaProjects/mssql2h2/.appeals","sa","sa");
             if (conn == null) System.out.println("null");
             PreparedStatement stmt = conn.prepareStatement(H2SQL);
             ResultSet rsMSSQL = stmtMSSQL.executeQuery(MSSQL);

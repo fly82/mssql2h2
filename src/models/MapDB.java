@@ -13,18 +13,18 @@ public class MapDB {
     String date;
     String address;
     String number;
-    Location location;
+
 
     public MapDB() {
     }
 
-    public MapDB(Long id, String name, String date, String address, String number, Location location) {
+    public MapDB(Long id, String name, String date, String address, String number) {
         this.id = id;
         this.name = name;
         this.date = date;
         this.address = address;
         this.number = number;
-        this.location = location;
+
     }
 
     @Override
