@@ -1,4 +1,4 @@
-package models;
+package model;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +20,7 @@ public class JsonReader {
 
     public static JSONObject read(final String url) throws IOException, JSONException {
         final InputStream is = new URL(url).openStream();
+
         try {
             final BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             return new JSONObject(readAll(rd));

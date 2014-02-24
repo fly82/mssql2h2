@@ -1,4 +1,4 @@
-import models.JDBCRepository;
+import model.JDBCRepository;
 
 import java.sql.SQLException;
 
