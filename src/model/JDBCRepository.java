@@ -5,10 +5,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class JDBCRepository {
+public class JDBCRepository implements Migrate {
     final String BEGIN2014YEAR = "112616";//"113214";
     final String PREFIXQUERTY ="SELECT * FROM RC_15 WHERE ";
     final String GEOPOINTOFREF = "Україна, Полтава, ";
@@ -20,7 +18,6 @@ public class JDBCRepository {
         String sqlMSSQL;
         ResultSet rsMSSQL;
         StringBuffer str = new StringBuffer();
-        List<String> list = new ArrayList<>();
 
         final String H2SQL =
                 "INSERT INTO appeals (id, name, date, address, number,lat,lon) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -38,17 +35,20 @@ public class JDBCRepository {
             connH2.createStatement().execute("DELETE FROM appeals WHERE ID IN (" + str.toString() + ")");
 
             sqlMSSQL = PREFIXQUERTY + "Cdoc > " + lastRec + " AND (Fnum_14 != 'Виконано' OR Fnum_14 IS NULL) AND Fnum_8 IS NOT NULL";
-            PreparedStatement stmtH2 = connH2.prepareStatement(H2SQL);
             rsMSSQL = stmtMSSQL.executeQuery(sqlMSSQL);
+
             Location tempLocation;
             String address, event, date, time;
+            PreparedStatement stmtH2 = connH2.prepareStatement(H2SQL);
 
             while (rsMSSQL.next()) {
                 System.out.println(rsMSSQL.getString("Fnum_14") != null ? rsMSSQL.getString("Fnum_14") : "null");
                 stmtH2.setString(1, rsMSSQL.getString("Cdoc"));
-                event = rsMSSQL.getString("Fnum_15") != null ? rsMSSQL.getString("Fnum_15").replaceAll("'", "") : "";
-                stmtH2.setString(2, event);
                 date = rsMSSQL.getString("Fnum_3") != null ? rsMSSQL.getString("Fnum_3") : "";
+                event = rsMSSQL.getString("Fnum_15") != null ? rsMSSQL.getString("Fnum_15")
+                        .replaceAll("'", "") : "";
+                stmtH2.setString(2, date + " " + event);
+
                 time = rsMSSQL.getString("Fnum_2") != null ? rsMSSQL.getString("Fnum_2") : "";
                 stmtH2.setString(3, date + " " + time);
                 address  = rsMSSQL.getString("Fnum_8");
@@ -71,7 +71,7 @@ public class JDBCRepository {
     }
      
 
-    final private Location geoLocation(final String address) throws IOException {
+    final public Location geoLocation(final String address) throws IOException {
 
         final String url = BASEURL + URLEncoder.encode(GEOPOINTOFREF + address, "utf-8") + "&sensor=false";
         final JSONObject response = JsonReader.read(url);
@@ -82,11 +82,9 @@ public class JDBCRepository {
         return new Location(location.getDouble("lng"), location.getDouble("lat"));
     }
 
-    final private String ext(final Connection conn, final Extremum ext) throws SQLException {
-
-        System.out.println(ext.toString());
+    final public String ext(final Connection conn, final Extremum ext) throws SQLException {
         ResultSet rs = conn.createStatement().executeQuery("SELECT " + ext.toString() + "(id) AS EXT FROM appeals");
-        rs.next();
-        return rs.getString("EXT") != null ? rs.getString("EXT") : BEGIN2014YEAR;
+        if (rs.next()) return rs.getString("EXT");
+        return BEGIN2014YEAR;
     }
 }
