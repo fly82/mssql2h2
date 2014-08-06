@@ -1,14 +1,13 @@
 package model;
 
+import com.sun.istack.internal.NotNull;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class JDBCRepository {
+public class JDBCRepository implements Migrate {
     final String BEGIN2014YEAR = "112616";//"113214";
     final String PREFIXQUERTY ="SELECT * FROM RC_15 WHERE ";
     final String GEOPOINTOFREF = "Україна, Полтава, ";
@@ -16,16 +15,14 @@ public class JDBCRepository {
 
     final public void convert() throws ClassNotFoundException, SQLException {
         Connection connH2 = null;
-        Statement stmtMSSQL = new ConnectDB().getStatementMSSQL();
         String sqlMSSQL;
         ResultSet rsMSSQL;
         StringBuffer str = new StringBuffer();
-        List<String> list = new ArrayList<>();
 
         final String H2SQL =
                 "INSERT INTO appeals (id, name, date, address, number,lat,lon) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try {
+        try (Statement stmtMSSQL = new ConnectDB().getStatementMSSQL()) {
             Class.forName("org.h2.Driver");
             connH2 = DriverManager.getConnection("jdbc:h2:.ticket","sa","sa");
             String firstRec = ext(connH2, Extremum.MIN);
@@ -33,6 +30,7 @@ public class JDBCRepository {
 
             sqlMSSQL = PREFIXQUERTY + "Fnum_14 = 'Виконано' AND Cdoc BETWEEN " + firstRec + " AND " + lastRec;
             rsMSSQL = stmtMSSQL.executeQuery(sqlMSSQL);
+
             while (rsMSSQL.next()) { str.append(rsMSSQL.getString("Cdoc")).append(","); }
             str.deleteCharAt(str.length()-1);
             connH2.createStatement().execute("DELETE FROM appeals WHERE ID IN (" + str.toString() + ")");
@@ -65,13 +63,12 @@ public class JDBCRepository {
             throw new RuntimeException(e);
         }
         finally {
-            if (stmtMSSQL != null) stmtMSSQL.close();
             if (connH2 != null) connH2.close();
         }
     }
      
 
-    final private Location geoLocation(final String address) throws IOException {
+    final public Location geoLocation(@NotNull final String address) throws IOException {
 
         final String url = BASEURL + URLEncoder.encode(GEOPOINTOFREF + address, "utf-8") + "&sensor=false";
         final JSONObject response = JsonReader.read(url);
@@ -82,11 +79,11 @@ public class JDBCRepository {
         return new Location(location.getDouble("lng"), location.getDouble("lat"));
     }
 
-    final private String ext(final Connection conn, final Extremum ext) throws SQLException {
+    final public String ext(final Connection conn, final Extremum ext) throws SQLException {
 
         System.out.println(ext.toString());
         ResultSet rs = conn.createStatement().executeQuery("SELECT " + ext.toString() + "(id) AS EXT FROM appeals");
-        rs.next();
-        return rs.getString("EXT") != null ? rs.getString("EXT") : BEGIN2014YEAR;
+        if (rs.next()) return rs.getString("EXT");
+        return BEGIN2014YEAR;
     }
 }
